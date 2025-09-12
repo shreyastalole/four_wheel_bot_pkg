@@ -13,11 +13,11 @@ def generate_launch_description():
     pkg_four_wheel_bot = FindPackageShare('four_wheel_bot_pkg')
     pkg_ros_gz_sim = FindPackageShare('ros_gz_sim')
     
-    # Robot model file
+    # Robot model file - Using Ackermann bot
     urdf_file = PathJoinSubstitution([
         pkg_four_wheel_bot,
         'urdf',
-        'diff_drive_bot.urdf.xacro'
+        'ackermann_bot.urdf.xacro'
     ])
     
     # Process the URDF file
@@ -48,17 +48,14 @@ def generate_launch_description():
         output='screen'
     )
 
-    # Gazebo simulation
-    gazebo = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            PathJoinSubstitution([
-                pkg_ros_gz_sim,
-                'launch',
-                'gz_sim.launch.py'
-            ])
-        ]),
+    # Gazebo launch
+    gazebo_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py'])
+        ),
         launch_arguments={
-            'gz_args': [world_file]
+            'gz_args': ['-r ', world_file],
+            'use_sim_time': LaunchConfiguration('use_sim_time')
         }.items()
     )
 
@@ -67,16 +64,16 @@ def generate_launch_description():
         package='ros_gz_sim',
         executable='create',
         arguments=[
-            '-topic', 'robot_description',
-            '-name', 'circle_bot',
+            '-topic', 'robot_description', 
+            '-name', 'ackermann_bot',
             '-x', '0.0',
-            '-y', '0.0',
-            '-z', '0.1'
+            '-y', '0.0', 
+            '-z', '0.2'
         ],
         output='screen'
     )
 
-    # Bridge between ROS and Gazebo
+    # Bridge for cmd_vel
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -89,15 +86,19 @@ def generate_launch_description():
         output='screen'
     )
 
-    # Circle mover - starts after a delay to let everything initialize
-    circle_mover = TimerAction(
-        period=5.0,  # Wait 5 seconds for everything to start
+    # Teleop keyboard node (delayed to allow robot to spawn)
+    teleop_keyboard = TimerAction(
+        period=3.0,  # Wait 3 seconds
         actions=[
             Node(
                 package='four_wheel_bot_pkg',
-                executable='circle_mover.py',
-                name='circle_mover',
-                output='screen'
+                executable='teleop_twist_keyboard.py',
+                name='teleop_twist_keyboard',
+                output='screen',
+                prefix='xterm -e',  # Run in separate terminal
+                parameters=[{
+                    'use_sim_time': LaunchConfiguration('use_sim_time')
+                }]
             )
         ]
     )
@@ -105,8 +106,8 @@ def generate_launch_description():
     return LaunchDescription([
         use_sim_time_arg,
         robot_state_publisher,
-        gazebo,
+        gazebo_launch,
         spawn_robot,
         bridge,
-        circle_mover
+        teleop_keyboard
     ])

@@ -13,15 +13,12 @@ install(DIRECTORY
   urdf
   launch
   worlds
-  config
   DESTINATION share/${PROJECT_NAME}/
 )
 
 # Install Python scripts
 install(PROGRAMS
-  scripts/keyboard_teleop.py
-  scripts/simple_teleop.py
-  scripts/circle_mover.py
+  scripts/teleop_twist_keyboard.py
   scripts/demo_info.py
   DESTINATION lib/${PROJECT_NAME}
 )
