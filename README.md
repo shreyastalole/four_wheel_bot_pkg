@@ -1,135 +1,152 @@
 # Four Wheel Bot Package
 
-This package provides two different 4-wheel robot configurations for ROS2 Jazzy and Gazebo Harmonic:
+A clean, well-structured ROS2 package providing an Ackermann steering 4-wheel robot for simulation and teleoperation.
 
-1. **Differential Drive Bot** - Tank-style movement where left and right wheels are controlled independently
-2. **Ackermann Steering Bot** - Car-style movement with front wheel steering and rear wheel drive
+## 🚗 Features
 
-## Features
+- **Ackermann Steering Robot** - Car-style movement with front wheel steering and rear wheel drive
+- **ROS2 Jazzy** and **Gazebo Harmonic** compatibility
+- **Standard teleop_twist_keyboard** interface for reliable control
+- **Clean, minimal codebase** following ROS2 best practices
+- **Proper physics simulation** with realistic inertias and collisions
 
-- Compatible with ROS2 Jazzy and Gazebo Harmonic
-- WASD keyboard control like a game
-- Two distinct robot models with different control mechanisms
-- Simple world environment for testing
-- Clean, readable code following ROS2 best practices
-
-## Package Structure
+## 📁 Package Structure
 
 ```
 four_wheel_bot_pkg/
 ├── urdf/                           # Robot descriptions
-│   ├── diff_drive_bot.urdf.xacro   # Differential drive robot
-│   ├── ackermann_bot.urdf.xacro    # Ackermann steering robot
-│   ├── materials.xacro             # Material definitions
-│   └── properties.xacro            # Robot properties/parameters
+│   ├── ackermann_bot.urdf.xacro    # Main Ackermann robot model
+│   ├── materials.xacro             # Material definitions  
+│   └── properties.xacro            # Robot parameters
 ├── launch/                         # Launch files
-│   ├── diff_drive_bot.launch.py    # Launch differential drive robot
-│   ├── ackermann_bot.launch.py     # Launch ackermann robot
-│   └── teleop_bot.launch.py        # Launch robot with teleop
-├── worlds/                         # Gazebo world files
+│   ├── robot_launch.py             # Launch robot only
+│   └── teleop_launch.py            # Launch robot + teleop
+├── worlds/                         # Gazebo environments
 │   └── simple_world.sdf            # Simple test world
-├── scripts/                        # Python scripts
-│   └── keyboard_teleop.py          # WASD keyboard controller
-└── config/                         # Configuration files
+└── scripts/                        # Control scripts
+    └── teleop_twist_keyboard.py    # Standard ROS2 teleop
 ```
 
-## Usage
+## 🚀 Quick Start
 
-### Building the Package
-
+### 1. Build the Package
 ```bash
 cd ~/ros2_ws
 colcon build --packages-select four_wheel_bot_pkg
 source install/setup.bash
 ```
 
-### Quick Start (Recommended)
-
+### 2. Launch Robot (Recommended Method)
 ```bash
-# Launch differential drive robot with simple teleop (default)
-ros2 launch four_wheel_bot_pkg teleop_bot.launch.py
+# Method 1: Robot + Teleop together
+ros2 launch four_wheel_bot_pkg teleop_launch.py
 
-# Launch ackermann robot with simple teleop
-ros2 launch four_wheel_bot_pkg teleop_bot.launch.py robot_type:=ackermann
+# Method 2: Manual control (most reliable)
+# Terminal 1: Launch robot
+ros2 launch four_wheel_bot_pkg robot_launch.py
+
+# Terminal 2: Run teleop
+ros2 run four_wheel_bot_pkg teleop_twist_keyboard.py
 ```
 
-### Manual Launch (Two Terminals)
+## 🎮 Controls
 
-```bash
-# Terminal 1: Launch robot in Gazebo
-ros2 launch four_wheel_bot_pkg diff_drive_bot.launch.py
-# or
-ros2 launch four_wheel_bot_pkg ackermann_bot.launch.py
+The robot uses standard `teleop_twist_keyboard` controls:
 
-# Terminal 2: Launch teleop control
-ros2 run four_wheel_bot_pkg simple_teleop.py
-# or (if you prefer keyboard mode)
-ros2 run four_wheel_bot_pkg keyboard_teleop.py
-```
+### Movement Keys
+- **`i`** - Move forward
+- **`,`** - Move backward  
+- **`j`** - Turn left
+- **`l`** - Turn right
+- **`k`** - Stop
+- **`u`** - Forward + left
+- **`o`** - Forward + right
+- **`m`** - Backward + left
+- **`.`** - Backward + right
 
-## Controls
+### Speed Control
+- **`q/z`** - Increase/decrease all speeds by 10%
+- **`w/x`** - Increase/decrease only linear speed by 10%
+- **`e/c`** - Increase/decrease only angular speed by 10%
 
-### Simple Teleop (Recommended)
-Enter commands in the terminal:
-- **w**: Move forward
-- **s**: Move backward  
-- **a**: Turn left / Steer left
-- **d**: Turn right / Steer right
-- **x**: Stop immediately
-- **q**: Quit teleop
+### Exit
+- **`Ctrl+C`** - Quit teleop
 
-### Keyboard Teleop (Alternative)
-Real-time WASD controls (press and hold):
-- **W/w**: Move forward
-- **S/s**: Move backward  
-- **A/a**: Turn left / Steer left
-- **D/d**: Turn right / Steer right
-- **Q/q**: Increase speed
-- **E/e**: Decrease speed
-- **Space**: Stop immediately
-- **Ctrl+C**: Exit teleop
+## 🤖 Robot Specifications
 
-## Robot Specifications
+### Ackermann Steering Bot
+- **Color**: Red chassis, dark grey wheels
+- **Control**: Car-like ackermann steering
+- **Steering**: Front wheels steer (±45°)
+- **Drive**: Rear wheels provide propulsion
+- **Physics**: Proper collision detection and inertial properties
+- **Spawn Height**: 20cm above ground (prevents floor clipping)
 
-### Differential Drive Bot (Blue)
-- **Control Method**: Tank-style differential drive
-- **Movement**: Independent left/right wheel control
-- **Best For**: Precise maneuvering, spot turns, obstacle navigation
-- **Wheels**: All 4 wheels are driven
+## 🔧 Technical Details
 
-### Ackermann Steering Bot (Red)
-- **Control Method**: Car-like ackermann steering
-- **Movement**: Front wheels steer, rear wheels drive
-- **Best For**: Smooth turns, highway-style navigation
-- **Wheels**: Front 2 wheels steer, rear 2 wheels drive
-
-## Technical Details
-
-- **ROS2 Version**: Jazzy
+- **ROS2 Version**: Jazzy Jalopy
 - **Gazebo Version**: Harmonic
-- **Physics**: Gazebo physics with realistic inertias
-- **Plugins**: gz-sim system plugins for modern Gazebo
-- **Topics**: Standard `/cmd_vel` for control, `/odom` for odometry
+- **Control Topic**: `/cmd_vel` (geometry_msgs/Twist)
+- **Odometry Topic**: `/odom` 
+- **Bridge**: ros_gz_bridge for ROS-Gazebo communication
+- **Physics**: gz-sim with ackermann steering system
 
-## Troubleshooting
+## 📋 Dependencies
 
-1. **Gazebo doesn't start**: Make sure Gazebo Harmonic is installed
-2. **Robot doesn't move**: Check that the bridge node is running
-3. **URDF errors**: Verify xacro is installed and working
-4. **Keyboard doesn't work**: Make sure the teleop terminal has focus
+```bash
+# Core ROS2 packages
+ros-jazzy-robot-state-publisher
+ros-jazzy-xacro
 
-## Dependencies
+# Gazebo integration
+ros-jazzy-ros-gz-sim
+ros-jazzy-ros-gz-bridge
 
-- ROS2 Jazzy
-- Gazebo Harmonic
-- ros_gz_sim
-- ros_gz_bridge
-- robot_state_publisher
-- xacro
+# Gazebo Harmonic
+gz-harmonic
+```
 
-## Future Enhancements
+## 🛠 Troubleshooting
 
-- Add sensor integration (lidar, camera)
-- Implement autonomous navigation
-- Add more complex world environments
-- Create parameter files for easy customization
+### Robot doesn't move
+1. Check if `/cmd_vel` commands are being published:
+   ```bash
+   ros2 topic echo /cmd_vel
+   ```
+2. Verify bridge is running:
+   ```bash
+   ros2 node list | grep parameter_bridge
+   ```
+
+### Robot is "swimming" in floor
+- This has been fixed with proper spawn height (z=0.2)
+- Robot chassis is positioned correctly above ground
+
+### Teleop doesn't respond
+- Make sure the teleop terminal has focus
+- Try the manual method (separate terminals)
+- Check that no other processes are publishing to `/cmd_vel`
+
+### Gazebo doesn't start
+- Ensure Gazebo Harmonic is properly installed
+- Check that `gz sim` command works independently
+
+## 🔮 Future Enhancements
+
+- [ ] Add differential drive variant
+- [ ] Integrate sensors (lidar, camera, IMU)
+- [ ] Implement autonomous navigation
+- [ ] Add more complex world environments
+- [ ] Create launch parameters for easy customization
+- [ ] Add rviz2 visualization
+
+## 📝 Notes
+
+- Robot spawns at coordinates (0, 0, 0.2) to prevent floor collision
+- Wheel positions are carefully calibrated for proper ground contact
+- Uses standard ROS2 conventions for maximum compatibility
+
+---
+
+**Version**: 1.0  
+**Tested on**: Ubuntu 22.04, ROS2 Jazzy, Gazebo Harmonic
