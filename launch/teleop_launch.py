@@ -73,12 +73,13 @@ def generate_launch_description():
         output='screen'
     )
 
-    # Bridge for cmd_vel
+    # Bridge for cmd_vel and camera
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
-            '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist'
+            '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
+            '/world/simple_world/model/ackermann_bot/link/base_link/sensor/camera_sensor/image@sensor_msgs/msg/Image[gz.msgs.Image'
         ],
         parameters=[{
             'use_sim_time': LaunchConfiguration('use_sim_time')
