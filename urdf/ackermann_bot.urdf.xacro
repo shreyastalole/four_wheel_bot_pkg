@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<robot name="ackermann_bot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Include property and material files -->
+  <xacro:include filename="$(find four_wheel_bot_pkg)/urdf/properties.xacro"/>
+  <xacro:include filename="$(find four_wheel_bot_pkg)/urdf/materials.xacro"/>
+
+  <!-- Base link (chassis) -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <geometry>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <geometry>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <mass value="${chassis_mass}"/>
+      <xacro:box_inertia m="${chassis_mass}" l="${chassis_length}" w="${chassis_width}" h="${chassis_height}"/>
+    </inertial>
+  </link>
+
+  <!-- Front steering wheels macro -->
+  <xacro:macro name="front_wheel" params="wheel_name y_offset">
+    <link name="${wheel_name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <mass value="${wheel_mass}"/>
+        <xacro:cylinder_inertia m="${wheel_mass}" r="${wheel_radius}" h="${wheel_thickness}"/>
+      </inertial>
+    </link>
+
+    <!-- Steering link -->
+    <link name="${wheel_name}_steering">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.1"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+
+    <!-- Steering joint -->
+    <joint name="${wheel_name}_steering_joint" type="revolute">
+      <parent link="base_link"/>
+      <child link="${wheel_name}_steering"/>
+      <origin xyz="${wheel_offset_x_front} ${y_offset} ${wheel_offset_z}" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-0.7854" upper="0.7854" effort="100" velocity="1"/>
+    </joint>
+
+    <!-- Wheel joint -->
+    <joint name="${wheel_name}_joint" type="continuous">
+      <parent link="${wheel_name}_steering"/>
+      <child link="${wheel_name}"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- Rear wheels macro -->
+  <xacro:macro name="rear_wheel" params="wheel_name y_offset">
+    <link name="${wheel_name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <mass value="${wheel_mass}"/>
+        <xacro:cylinder_inertia m="${wheel_mass}" r="${wheel_radius}" h="${wheel_thickness}"/>
+      </inertial>
+    </link>
+
+    <joint name="${wheel_name}_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${wheel_name}"/>
+      <origin xyz="${wheel_offset_x_rear} ${y_offset} ${wheel_offset_z}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- Create wheels -->
+  <xacro:front_wheel wheel_name="front_left_wheel" y_offset="${wheel_offset_y}"/>
+  <xacro:front_wheel wheel_name="front_right_wheel" y_offset="-${wheel_offset_y}"/>
+  <xacro:rear_wheel wheel_name="rear_left_wheel" y_offset="${wheel_offset_y}"/>
+  <xacro:rear_wheel wheel_name="rear_right_wheel" y_offset="-${wheel_offset_y}"/>
+
+  <!-- Gazebo Ackermann steering plugin -->
+  <gazebo>
+    <plugin filename="gz-sim-ackermann-steering-system" name="gz::sim::systems::AckermannSteering">
+      <left_joint>rear_left_wheel_joint</left_joint>
+      <right_joint>rear_right_wheel_joint</right_joint>
+      <left_steering_joint>front_left_wheel_steering_joint</left_steering_joint>
+      <right_steering_joint>front_right_wheel_steering_joint</right_steering_joint>
+      <wheel_separation>${2*wheel_offset_y}</wheel_separation>
+      <kingpin_width>${2*wheel_offset_y}</kingpin_width>
+      <wheel_base>${wheel_offset_x_front - wheel_offset_x_rear}</wheel_base>
+      <steering_limit>0.7854</steering_limit>
+      <wheel_radius>${wheel_radius}</wheel_radius>
+      <odom_publish_frequency>1</odom_publish_frequency>
+      <max_linear_velocity>3.0</max_linear_velocity>
+      <min_linear_velocity>-3.0</min_linear_velocity>
+      <max_steering_angle>0.7854</max_steering_angle>
+      <min_steering_angle>-0.7854</min_steering_angle>
+      <topic>cmd_vel</topic>
+      <odom_topic>odom</odom_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_link</child_frame_id>
+    </plugin>
+  </gazebo>
+
+  <!-- Joint state publisher plugin -->
+  <gazebo>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+    </plugin>
+  </gazebo>
+
+  <!-- Gazebo materials -->
+  <gazebo reference="base_link">
+    <material>Gazebo/Red</material>
+  </gazebo>
+
+  <gazebo reference="front_left_wheel">
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+
+  <gazebo reference="front_right_wheel">
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+
+  <gazebo reference="rear_left_wheel">
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+
+  <gazebo reference="rear_right_wheel">
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+
+</robot>
