@@ -20,6 +20,8 @@ install(DIRECTORY
 install(PROGRAMS
   scripts/teleop_twist_keyboard.py
   scripts/demo_info.py
+  scripts/lidar_test.py
+  scripts/check_lidar_topics.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
