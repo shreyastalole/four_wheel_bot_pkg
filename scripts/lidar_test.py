@@ -20,6 +20,7 @@ class LidarListener(Node):
     def lidar_callback(self, msg):
         # Process the laser scan data
         ranges = np.array(msg.ranges)
+        intensities = np.array(msg.intensities)
         
         # Filter out invalid readings (inf and nan)
         valid_ranges = ranges[np.isfinite(ranges)]
@@ -29,12 +30,29 @@ class LidarListener(Node):
             max_distance = np.max(valid_ranges)
             avg_distance = np.mean(valid_ranges)
             
-            self.get_logger().info(
-                f'Lidar data - Min: {min_distance:.2f}m, '
-                f'Max: {max_distance:.2f}m, '
-                f'Avg: {avg_distance:.2f}m, '
-                f'Valid points: {len(valid_ranges)}/{len(ranges)}'
-            )
+            # Process intensity data
+            if len(intensities) > 0 and len(intensities) == len(ranges):
+                valid_intensities = intensities[np.isfinite(ranges)]
+                if len(valid_intensities) > 0:
+                    min_intensity = np.min(valid_intensities)
+                    max_intensity = np.max(valid_intensities)
+                    avg_intensity = np.mean(valid_intensities)
+                    
+                    self.get_logger().info(
+                        f'Lidar data - Distance: Min={min_distance:.2f}m, Max={max_distance:.2f}m, Avg={avg_distance:.2f}m | '
+                        f'Intensity: Min={min_intensity:.1f}, Max={max_intensity:.1f}, Avg={avg_intensity:.1f} | '
+                        f'Valid points: {len(valid_ranges)}/{len(ranges)}'
+                    )
+                else:
+                    self.get_logger().info(
+                        f'Lidar data - Distance: Min={min_distance:.2f}m, Max={max_distance:.2f}m, Avg={avg_distance:.2f}m | '
+                        f'Intensity: No valid data | Valid points: {len(valid_ranges)}/{len(ranges)}'
+                    )
+            else:
+                self.get_logger().info(
+                    f'Lidar data - Distance: Min={min_distance:.2f}m, Max={max_distance:.2f}m, Avg={avg_distance:.2f}m | '
+                    f'Intensity: Not available | Valid points: {len(valid_ranges)}/{len(ranges)}'
+                )
         else:
             self.get_logger().warn('No valid lidar readings received')
 
