@@ -89,10 +89,22 @@ def generate_launch_description():
         output='screen'
     )
 
+    # Lidar test node
+    lidar_test = Node(
+        package='four_wheel_bot_pkg',
+        executable='lidar_test.py',
+        name='lidar_test',
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time')
+        }],
+        output='screen'
+    )
+
     return LaunchDescription([
         use_sim_time_arg,
         robot_state_publisher,
         gazebo_launch,
         spawn_robot,
-        bridge
+        bridge,
+        lidar_test
     ])

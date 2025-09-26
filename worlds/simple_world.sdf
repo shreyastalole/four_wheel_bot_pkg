@@ -52,6 +52,22 @@
               <size>100 100</size>
             </plane>
           </geometry>
+          <!-- Add surface properties for Lidar reflection -->
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0.0</restitution_coefficient>
+            </bounce>
+            <!-- Lidar material properties -->
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
         </collision>
         <visual name="visual">
           <geometry>
@@ -64,12 +80,19 @@
             <ambient>0.8 0.8 0.8 1</ambient>
             <diffuse>0.8 0.8 0.8 1</diffuse>
             <specular>0.8 0.8 0.8 1</specular>
+            <!-- Add reflectance for Lidar -->
+            <pbr>
+              <metal>
+                <metalness>0.1</metalness>
+                <roughness>0.3</roughness>
+              </metal>
+            </pbr>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Simple obstacles for testing -->
+    <!-- High reflectivity box (should give high intensity) -->
     <model name="box1">
       <pose>2 2 0.25 0 0 0</pose>
       <static>true</static>
@@ -80,6 +103,20 @@
               <size>0.5 0.5 0.5</size>
             </box>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0.0</restitution_coefficient>
+            </bounce>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
         </collision>
         <visual name="visual">
           <geometry>
@@ -90,12 +127,20 @@
           <material>
             <ambient>1.0 0.0 0.0 1</ambient>
             <diffuse>1.0 0.0 0.0 1</diffuse>
-            <specular>1.0 0.0 0.0 1</specular>
+            <specular>1.0 1.0 1.0 1</specular>
+            <!-- High reflectivity material -->
+            <pbr>
+              <metal>
+                <metalness>0.8</metalness>
+                <roughness>0.1</roughness>
+              </metal>
+            </pbr>
           </material>
         </visual>
       </link>
     </model>
 
+    <!-- Low reflectivity box (should give low intensity) -->
     <model name="box2">
       <pose>-2 -2 0.25 0 0 0</pose>
       <static>true</static>
@@ -106,6 +151,20 @@
               <size>0.5 0.5 0.5</size>
             </box>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0.0</restitution_coefficient>
+            </bounce>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
         </collision>
         <visual name="visual">
           <geometry>
@@ -116,7 +175,58 @@
           <material>
             <ambient>0.0 1.0 0.0 1</ambient>
             <diffuse>0.0 1.0 0.0 1</diffuse>
-            <specular>0.0 1.0 0.0 1</specular>
+            <specular>0.0 0.0 0.0 1</specular>
+            <!-- Low reflectivity (matte) material -->
+            <pbr>
+              <metal>
+                <metalness>0.0</metalness>
+                <roughness>0.9</roughness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Add a highly reflective metallic object -->
+    <model name="metal_cylinder">
+      <pose>0 3 0.5 0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>0.3</radius>
+              <length>1.0</length>
+            </cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.3</radius>
+              <length>1.0</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.7 0.7 0.7 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>1.0 1.0 1.0 1</specular>
+            <!-- Very high reflectivity (metallic) -->
+            <pbr>
+              <metal>
+                <metalness>0.9</metalness>
+                <roughness>0.05</roughness>
+              </metal>
+            </pbr>
           </material>
         </visual>
       </link>
