@@ -82,9 +82,9 @@ def generate_launch_description():
         executable='parameter_bridge',
         arguments=[
             '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
-            '/world/sonoma_empty/model/ackermann_bot/link/camera_link/sensor/camera_sensor/image@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/world/sonoma_empty/model/ackermann_bot/link/lidar_link/sensor/lidar_sensor/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
-            '/world/sonoma_empty/model/ackermann_bot/link/lidar_link/sensor/lidar_sensor/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked'
+            '/world/sonoma_empty/model/ackermann_bot/link/base_link/sensor/camera_sensor/image@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/world/sonoma_empty/model/ackermann_bot/link/base_link/sensor/lidar_sensor/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/world/sonoma_empty/model/ackermann_bot/link/base_link/sensor/lidar_sensor/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked'
         ],
         parameters=[{
             'use_sim_time': LaunchConfiguration('use_sim_time')
