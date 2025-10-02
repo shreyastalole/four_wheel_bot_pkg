@@ -13,17 +13,16 @@ install(DIRECTORY
   urdf
   launch
   worlds
+  models
   DESTINATION share/${PROJECT_NAME}/
 )
 
 # Install Python scripts
 install(PROGRAMS
   scripts/teleop_twist_keyboard.py
-  scripts/demo_info.py
   scripts/lidar_test.py
-  scripts/lidar_test_3d.py
-  scripts/3d_pointcloud_test.py
   scripts/check_lidar_topics.py
+  scripts/view_camera.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
