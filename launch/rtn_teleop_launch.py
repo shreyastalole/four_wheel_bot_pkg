@@ -1,6 +1,6 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -22,12 +22,12 @@ def generate_launch_description():
     
     # Process the URDF file
     robot_description_content = Command(['xacro ', urdf_file])
-    
-    # World file
+
+    # World file - Using road_track world
     world_file = PathJoinSubstitution([
         pkg_four_wheel_bot,
         'worlds',
-        'simple_world.sdf'
+        'road_track.sdf'
     ])
 
     # Launch arguments
@@ -59,29 +59,37 @@ def generate_launch_description():
         }.items()
     )
 
-    # Spawn robot in Gazebo
+    # Process the URDF file with scale factor
+    robot_description_content = Command([
+        'xacro ', urdf_file, 
+        ' scale_factor:=3.0'  # Pass scale factor to xacro
+    ])
+    # Spawn robot in Gazebo at prius_hybrid position
     spawn_robot = Node(
         package='ros_gz_sim',
         executable='create',
         arguments=[
             '-topic', 'robot_description', 
             '-name', 'ackermann_bot',
-            '-x', '0.0',
-            '-y', '0.0', 
-            '-z', '0.2'
+            '-x', '0',
+            '-y', '-2', 
+            '-z', '1',
+            '-R', '0',
+            '-P', '0',
+            '-Y', '0'
         ],
         output='screen'
     )
 
-    # Bridge for cmd_vel, camera, and lidar
+    # Bridge for cmd_vel, camera, and lidar (correct topics for ackermann_bot)
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
             '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
-            '/world/simple_world/model/ackermann_bot/link/base_link/sensor/camera_sensor/image@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/world/simple_world/model/ackermann_bot/link/base_link/sensor/lidar_sensor/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
-            '/world/simple_world/model/ackermann_bot/link/base_link/sensor/lidar_sensor/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked'
+            '/world/road_track/model/ackermann_bot/link/base_link/sensor/camera_sensor/image@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/world/road_track/model/ackermann_bot/link/base_link/sensor/lidar_sensor/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/world/road_track/model/ackermann_bot/link/base_link/sensor/lidar_sensor/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked'
         ],
         parameters=[{
             'use_sim_time': LaunchConfiguration('use_sim_time')
@@ -89,15 +97,21 @@ def generate_launch_description():
         output='screen'
     )
 
-    # Lidar test node
-    lidar_test = Node(
-        package='four_wheel_bot_pkg',
-        executable='lidar_test.py',
-        name='lidar_test',
-        parameters=[{
-            'use_sim_time': LaunchConfiguration('use_sim_time')
-        }],
-        output='screen'
+    # Teleop keyboard node (delayed to allow robot to spawn)
+    teleop_keyboard = TimerAction(
+        period=3.0,  # Wait 3 seconds
+        actions=[
+            Node(
+                package='four_wheel_bot_pkg',
+                executable='teleop_twist_keyboard.py',
+                name='teleop_twist_keyboard',
+                output='screen',
+                prefix='xterm -e',  # Run in separate terminal
+                parameters=[{
+                    'use_sim_time': LaunchConfiguration('use_sim_time')
+                }]
+            )
+        ]
     )
 
     return LaunchDescription([
@@ -106,5 +120,5 @@ def generate_launch_description():
         gazebo_launch,
         spawn_robot,
         bridge,
-        lidar_test
+        teleop_keyboard
     ])

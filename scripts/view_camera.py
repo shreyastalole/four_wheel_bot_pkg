@@ -17,7 +17,7 @@ class CameraViewer(Node):
         # Subscribe to camera topic
         self.subscription = self.create_subscription(
             Image,
-            '/world/sonoma_empty/model/ackermann_bot/link/base_link/sensor/camera_sensor/image',
+            '/world/road_track/model/ackermann_bot/link/base_link/sensor/camera_sensor/image',
             self.image_callback,
             10
         )
@@ -31,7 +31,7 @@ class CameraViewer(Node):
         
     def timer_callback(self):
         if not self.image_received:
-            self.get_logger().info('Still waiting for camera images on topic /world/sonoma_empty/model/ackermann_bot/link/base_link/sensor/camera_sensor/image...')
+            self.get_logger().info('Still waiting for camera images on topic /world/road_track/model/ackermann_bot/link/base_link/sensor/camera_sensor/image...')
 
     def image_callback(self, msg):
         try:
