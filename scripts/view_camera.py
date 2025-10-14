@@ -9,15 +9,16 @@ import numpy as np
 
 
 class CameraViewer(Node):
-    def __init__(self):
+    def __init__(self, world_name='road_track'):
         super().__init__('camera_viewer')
         
         self.bridge = CvBridge()
+        self.world_name = world_name
         
         # Subscribe to camera topic
         self.subscription = self.create_subscription(
             Image,
-            '/world/road_track/model/ackermann_bot/link/base_link/sensor/camera_sensor/image',
+            f'/world/{self.world_name}/model/ackermann_bot/link/base_link/sensor/camera_sensor/image',
             self.image_callback,
             10
         )
@@ -31,7 +32,7 @@ class CameraViewer(Node):
         
     def timer_callback(self):
         if not self.image_received:
-            self.get_logger().info('Still waiting for camera images on topic /world/road_track/model/ackermann_bot/link/base_link/sensor/camera_sensor/image...')
+            self.get_logger().info(f'Still waiting for camera images on topic /world/{self.world_name}/model/ackermann_bot/link/base_link/sensor/camera_sensor/image...')
 
     def image_callback(self, msg):
         try:
@@ -64,7 +65,14 @@ class CameraViewer(Node):
 def main(args=None):
     rclpy.init(args=args)
     
-    camera_viewer = CameraViewer()
+     # Parse command line arguments
+    import sys
+    if len(sys.argv) > 1:
+        world_name = sys.argv[1]
+    else:
+        world_name = 'road_track'  # Default world
+
+    camera_viewer = CameraViewer(world_name)
     
     try:
         rclpy.spin(camera_viewer)
