@@ -23,6 +23,8 @@ install(PROGRAMS
   scripts/lidar_test.py
   scripts/check_lidar_topics.py
   scripts/view_camera.py
+  scripts/cam_data_recorder.py
+  scripts/command_recorder.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
