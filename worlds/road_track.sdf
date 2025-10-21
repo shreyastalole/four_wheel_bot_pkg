@@ -89,19 +89,20 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/jetracer/ros2_ws/src/four_wheel_bot_pkg/models/road_new_edited_scaled_down.obj</uri>
+              <uri>file:///home/jetracer/ros2_ws/src/four_wheel_bot_pkg/models/road_new_edited_scaled_down_25.obj</uri>
             </mesh>
           </geometry>
         </visual>
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>file:///home/jetracer/ros2_ws/src/four_wheel_bot_pkg/models/road_new_edited_scaled_down.obj</uri>
+              <uri>file:///home/jetracer/ros2_ws/src/four_wheel_bot_pkg/models/road_new_edited_scaled_down_25.obj</uri>
             </mesh>
           </geometry>
         </collision>
       </link>
-      <pose>150 0 0.100 0 0 0</pose>
+      <pose>70 -1.20 0.100 0 0 0</pose> <!-- Scaled Down Position -->
+      <!-- <pose>150 0 0.100 0 0 0</pose> # Original Position -->
     </model>
     
     <!-- Sun light -->
