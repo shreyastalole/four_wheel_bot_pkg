@@ -199,7 +199,7 @@
   <!-- Global Sensors System Plugin (must be defined once globally) -->
   <gazebo>
     <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
-      <render_engine>ogre2</render_engine>
+      <render_engine>${render_engine}</render_engine>
     </plugin>
   </gazebo>
 
@@ -258,9 +258,9 @@
     </sensor>
   </gazebo>
 
-  <!-- 3D Lidar sensor -->
+  <!-- Lidar sensor -->
   <gazebo reference="lidar_link">
-    <sensor name="lidar_sensor" type="gpu_lidar">
+    <sensor name="lidar_sensor" type="${lidar_type}">
       <update_rate>10</update_rate>
       <visualize>true</visualize>
       <always_on>true</always_on>
@@ -268,15 +268,15 @@
         <scan>
           <horizontal>
             <samples>360</samples>
-            <resolution>0.5</resolution>
+            <resolution>1</resolution>
             <min_angle>-3.141592</min_angle>
             <max_angle>3.141592</max_angle>
           </horizontal>
           <vertical>
-            <samples>64</samples>
-            <resolution>0.5</resolution>
-            <min_angle>-0.419</min_angle>
-            <max_angle>0.419</max_angle>
+            <samples>1</samples>
+            <resolution>1</resolution>
+            <min_angle>0</min_angle>
+            <max_angle>0</max_angle>
           </vertical>
         </scan>
         <range>

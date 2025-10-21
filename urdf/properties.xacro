@@ -29,5 +29,8 @@
              iyy="${m*(3*r*r+h*h)/12}" iyz="0"
              izz="${m*r*r/2}"/>
   </xacro:macro>
-
+  <!-- Lidar type - can be 'gpu_lidar' or 'lidar' -->
+  <xacro:property name="lidar_type" value="gpu_lidar"/>
+    <!-- Render Engine Type - can be 'ogre' or 'ogre2' -->
+  <xacro:property name="render_engine" value="ogre2"/>
 </robot>
