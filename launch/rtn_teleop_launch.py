@@ -1,6 +1,6 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction, SetEnvironmentVariable
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -13,6 +13,8 @@ def generate_launch_description():
     pkg_four_wheel_bot = FindPackageShare('four_wheel_bot_pkg')
     pkg_ros_gz_sim = FindPackageShare('ros_gz_sim')
     
+    models_path = PathJoinSubstitution([pkg_four_wheel_bot, 'models'])
+
     # Robot model file - Using Ackermann bot
     urdf_file = PathJoinSubstitution([
         pkg_four_wheel_bot,
@@ -115,6 +117,11 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+                # Set Gazebo model path
+        SetEnvironmentVariable(
+            name='GZ_SIM_RESOURCE_PATH',
+            value=[models_path, ':', os.environ.get('GZ_SIM_RESOURCE_PATH', '')]
+        ),
         use_sim_time_arg,
         robot_state_publisher,
         gazebo_launch,
